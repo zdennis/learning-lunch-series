@@ -4,6 +4,33 @@ html, body {
 	margin:0;
 }
 
+pre {
+	identifier {
+		color: orange;
+	}
+
+	string {
+		color: green;
+	}
+
+	comment {
+		color: gray;
+	}
+
+}
+
+h1 span {
+	color: #773388;
+}
+
+strike {
+	text-decoration: line-through;
+}
+
+.keep { 
+	color: green;
+}
+
 body.deck-container {
 	overflow-y:auto;
 	position:static;

@@ -1,47 +1,279 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<meta name="viewport" content="width=1024, user-scalable=no">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=1024, user-scalable=no">
 
-	<title>Your deck.js Presentation</title>
-	
-	<!-- Required stylesheet -->
-	<link rel="stylesheet" href="core/deck.core.css">
-	
-	<!-- Extension CSS files go here. Remove or add as needed. -->
-	<link rel="stylesheet" href="extensions/goto/deck.goto.css">
-	<link rel="stylesheet" href="extensions/menu/deck.menu.css">
-	<link rel="stylesheet" href="extensions/navigation/deck.navigation.css">
-	<link rel="stylesheet" href="extensions/status/deck.status.css">
-	<link rel="stylesheet" href="extensions/hash/deck.hash.css">
-	<link rel="stylesheet" href="extensions/scale/deck.scale.css">
+  <title>Kickoff - Implementing a Regex Engine</title>
+  
+  <!-- Required stylesheet -->
+  <link rel="stylesheet" href="core/deck.core.css">
+  
+  <!-- Extension CSS files go here. Remove or add as needed. -->
+  <link rel="stylesheet" href="extensions/goto/deck.goto.css">
+  <link rel="stylesheet" href="extensions/menu/deck.menu.css">
+  <link rel="stylesheet" href="extensions/navigation/deck.navigation.css">
+  <link rel="stylesheet" href="extensions/status/deck.status.css">
+  <link rel="stylesheet" href="extensions/hash/deck.hash.css">
+  <link rel="stylesheet" href="extensions/scale/deck.scale.css">
 
-	<!-- Style theme. More available in /themes/style/ or create your own. -->
-	<link rel="stylesheet" href="themes/style/web-2.0.css">
-	
-	<!-- Transition theme. More available in /themes/transition/ or create your own. -->
-	<link rel="stylesheet" href="themes/transition/horizontal-slide.css">
-	
-	<!-- Required Modernizr file -->
-	<script src="modernizr.custom.js"></script>
+  <!-- Style theme. More available in /themes/style/ or create your own. -->
+  <link rel="stylesheet" href="themes/style/web-2.0.css">
+  
+  <!-- Transition theme. More available in /themes/transition/ or create your own. -->
+  <link rel="stylesheet" href="themes/transition/horizontal-slide.css">
+  
+  <!-- Required Modernizr file -->
+  <script src="modernizr.custom.js"></script>
 </head>
 <body class="deck-container">
 
 <!-- Begin slides. Just make elements with a class of slide. -->
 
 <section class="slide">
-	<h1>Slide</h1>
+  <h1>Implementing a Regex Engine <em>Kickoff</em></h1>
 </section>
 
 <section class="slide">
-	<h1>Content</h1>
+  <h2>Why?</h2>
+  <ol>
+    <li>Problem solving
+<!--      <ul>
+        <li>Problem and solution space decomposition</li>
+        <li>Pattern recognition, Refactoring, Simplification</li>
+      </ul>
+ -->    </li>
+    <li>
+      Deepen understanding of Ruby fundamentals
+<!--      <ul>
+        <li>Strings, Arrays, Classes, Control structures</li>
+      </ul>
+ -->    </li>
+    <li>
+      Excercising good testing practices
+<!--      <ul>
+        <li>Behavior, not implementation</li>
+        <li>Strings, Arrays, Classes, Control structures</li>
+      </ul>
+ -->    </li>
+    <li>
+      Master regular expressions
+    </li>
+    <li>
+      It's fun
+    </li>
+  </ol>
+</section>
+
+
+<section class="slide">
+  <h2>Regular Expressions <em>/ab*a/</em></h2>
+  <ul>
+    <li><div>Notation to specify a set of strings</div>
+      <ul style="float: left; margin-right: 50px; padding-right: 50px; border-right: 1px solid #CCC;">
+        <li><strong>concatenation</strong></li>
+        <li><strong>wildcard</strong></li>
+        <li><strong>union</strong></li>
+        <li><strong>quantifiers</strong>
+          <ul>
+            <li>zero or one</li>
+            <li>zero or more</li>
+            <li>one or more</li>
+            <li>lazy</li>
+          </ul>
+        </li>
+        <li><strong>anchors</strong></li>
+        <li><strong>character classes</strong>
+          <ul>
+            <li>negated</li>            
+            <li>ranges (explicit and named)</li>
+          </ul>
+        </li>
+      </ul>
+      <ul style="float: left;">
+        <li><strong>exactly N occurrences</strong></li>
+        <li><strong>escape sequences</strong></li>        
+        <li><strong>sub-expressions</strong>
+          <ul>
+            <li>capturing</li>            
+            <li>non-capturing</li>
+            <li>named</li>
+          </ul>
+        </li>
+        <li><strong>look-aheads</strong></li>
+        <li><strong>look-behinds</strong></li>
+        <li><strong>backtracking references</strong></li>
+      </ul>
+
+    </li>
+  </ul>
 </section>
 
 <section class="slide">
-	<h1>Here</h1>
+  <h2>Our focus</h2>
+
+  <ul>
+    <li><div>Notation to specify a set of strings</div>
+      <ul style="float: left; margin-right: 50px; padding-right: 50px; border-right: 1px solid #CCC;">
+        <li><span class="keep"><strong>concatenation</strong></span></li>
+        <li><span class="keep"><strong>wildcard</span></strong></li>
+        <li><span class="keep"><strong>union</span></strong></li>
+        <li><span class="keep"><strong>quantifiers</span></strong>
+          <ul>
+            <li><span class="keep">zero or one</span></li>
+            <li><span class="keep">zero or more</span></li>
+            <li><span class="keep">one or more</span></li>
+            <li><span class="keep">lazy</span></li>
+          </ul>
+        </li>
+        <li><strong>anchors</strong></li>
+        <li><strong>character classes</strong>
+          <ul>
+            <li>negated</li>            
+            <li>ranges (explicit and named)</li>
+          </ul>
+        </li>
+      </ul>
+      <ul style="float: left;">
+        <li><strong>exactly N occurrences</strong></li>
+        <li><span class="keep"><strong>escape sequences</strong></span></li>        
+        <li><span class="keep"><strong>sub-expressions</span></strong>
+          <ul>
+            <li><span class="keep">capturing</span></li>            
+            <li><span class="keep">non-capturing</span></li>
+            <li>named</li>
+          </ul>
+        </li>
+        <li><strong>look-aheads</strong></li>
+        <li><strong>look-behinds</strong></li>
+        <li><strong>backtracking references</strong></li>
+        <li><span class="keep"><strong>add our own???</strong></span></li>
+      </ul>
+    </li>
+  </ul>
 </section>
+
+<section class="slide">
+  <h2>How?</h2>
+  <ul>
+    <li>NFA / backtracking implementation. 
+      <!-- We'll learn about: -->
+<!--      <ul>
+        <li>automatons</li>
+        <li>finite state machines</li>
+        <li>DFAs</li>
+        <li>NFAs</li>
+      </ul>
+ -->
+    </li>
+    <li>Incremental development <em>(one feature at a time)</em></li>
+    <li>Test drive with RSpec <em>(focus on behavior, not implementation)</em></li>
+    <li>Implement in Ruby</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>Expectations</h2>
+  <ul>
+    <li>Each person implements their own regex engine</li>
+    <li>2 - 3 features a week</li>
+    <li>Meet twice a week as a group for about an hour
+      <ul>
+        <li>Review progress and implementation together, Q&amp;A</li>       
+        <li>Identify and discuss next regex feature to implement</li>
+      </ul>
+    </li>
+    <li>Everyone has their own Git repository (your public or MH private)</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>Scheduling</h2>
+  <ul>
+    <li>Let's pick the two day/times to meet as a group</li>
+    <li>Outside of group meet your schedule is your schedule</li>
+    <li>If pace proves too aggressive we can always adjust the schedule</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h1>Thoughts, Questions?</h1>
+</section>
+
+<section class="slide">
+  <h2>Step #1 - Create Skeleton Project</h2>
+      <pre>
+<strong>your-project/</strong>            # mkdir your-project/
+   Gemfile               # bundle init
+   Gemfile.lock                           
+   <strong>lib/</strong>                  # mkdir -p lib/your-lib
+      <strong>your-lib/</strong>    
+        file1.rb
+        file2.rb
+      your-lib.rb
+   <strong>spec/</strong>                 # rspec --init
+      spec_helper.rb
+      <strong>your-lib/</strong>          # mkdir spec/your-lib
+         file1_spec.rb
+         file2_spec.rb
+      </pre>
+</section>
+
+<section class="slide">
+  <h2>Step #2 - Create Skeleton Spec</h2>
+
+      <pre>
+<strong>spec/your-namespace_spec.rb</strong>       
+  
+<identifier>require</identifier> <string>'spec_helper'</string>
+
+<identifier>describe</identifier> YourLib <identifier>do</identifier>
+  <identifier>it</identifier> <string>"should exist"</string> <identifier>do</identifier>
+    YourLib.should be
+  <identifier>end</identifier>
+<identifier>end</identifier>
+
+      </pre>
+
+</section>
+
+<section class="slide">
+  <h2>Step #3 - Update spec_helper.rb</h2>
+
+      <pre>
+<strong>spec/spec_helper.rb</strong>       
+  
+# load our library
+<identifier>require</identifier> File.join(__FILE__ + <string>"/../lib/your-lib.rb"</string>)
+
+      </pre>
+
+</section>
+
+<section class="slide">
+  <h2>Step #4 - Gitify</h2>
+
+      <pre>
+git init
+
+<comment># add a .gitignore? https://github.com/github/gitignore</comment>
+
+git add .
+git commit -m "initial commit"
+
+<comment># add remote repository</comment>
+git remote add origin git://your/url/here
+
+git push
+</pre>
+</section>
+
+<section class="slide">
+  <h2>Ready to begin...</h2>
+  <p>Start tomorrow or Monday?</p>
+</section>
+
 
 <!-- End slides. -->
 
@@ -54,17 +286,17 @@
 
 <!-- deck.status snippet -->
 <p class="deck-status">
-	<span class="deck-status-current"></span>
-	/
-	<span class="deck-status-total"></span>
+  <span class="deck-status-current"></span>
+  /
+  <span class="deck-status-total"></span>
 </p>
 
 <!-- deck.goto snippet -->
 <form action="." method="get" class="goto-form">
-	<label for="goto-slide">Go to slide:</label>
-	<input type="text" name="slidenum" id="goto-slide" list="goto-datalist">
-	<datalist id="goto-datalist"></datalist>
-	<input type="submit" value="Go">
+  <label for="goto-slide">Go to slide:</label>
+  <input type="text" name="slidenum" id="goto-slide" list="goto-datalist">
+  <datalist id="goto-datalist"></datalist>
+  <input type="submit" value="Go">
 </form>
 
 <!-- deck.hash snippet -->
@@ -88,9 +320,9 @@
 
 <!-- Initialize the deck. You can put this in an external file if desired. -->
 <script>
-	$(function() {
-		$.deck('.slide');
-	});
+  $(function() {
+    $.deck('.slide');
+  });
 </script>
 </body>
 </html>
