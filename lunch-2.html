@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=1024, user-scalable=no">
+
+  <title>Lunch #2 - Implementing a Regex Engine</title>
+  
+  <!-- Required stylesheet -->
+  <link rel="stylesheet" href="core/deck.core.css">
+  
+  <!-- Extension CSS files go here. Remove or add as needed. -->
+  <link rel="stylesheet" href="extensions/goto/deck.goto.css">
+  <link rel="stylesheet" href="extensions/menu/deck.menu.css">
+  <link rel="stylesheet" href="extensions/navigation/deck.navigation.css">
+  <link rel="stylesheet" href="extensions/status/deck.status.css">
+  <link rel="stylesheet" href="extensions/hash/deck.hash.css">
+  <link rel="stylesheet" href="extensions/scale/deck.scale.css">
+
+  <!-- Style theme. More available in /themes/style/ or create your own. -->
+  <link rel="stylesheet" href="themes/style/web-2.0.css">
+  
+  <!-- Transition theme. More available in /themes/transition/ or create your own. -->
+  <link rel="stylesheet" href="themes/transition/horizontal-slide.css">
+  
+  <!-- Required Modernizr file -->
+  <script src="modernizr.custom.js"></script>
+</head>
+<body class="deck-container">
+
+<!-- Begin slides. Just make elements with a class of slide. -->
+
+<section class="slide">
+  <h1>Implementation Lunch #1</h1>
+</section>
+
+<section class="slide">
+  <h2>Implementation Guidelines</h2>
+  <ol>
+    <li>Cannot rely on any outside string matching or regex support (ie: <em>include?, =~, match, etc</em>)</li>
+    <li>Regex form will be "/&lt;pattern&gt;/"</li>
+    <li>Primary matching method will be <code>=~</code></li>
+    <li><code>=~</code> will return nil when no match otherwise offset of match</li>
+  </ol>
+</section>
+
+<section class="slide">
+  <h2>Example:</h2>
+<code style="margin-left: 2em; white-space: pre; font-weight: bold; font-size: 32px;">
+  regex = MyRegex.new("/foobar/")
+
+  regex =~ "some string" # => nil
+
+  regex =~ "some foobar" # => 5
+</code>
+</section>
+
+<section class="slide">
+  <h2>Today's features</h2>
+  <ol>
+    <li>Single character matching</li>
+    <li>Concatenation</li>
+    <li>Wildcard matching</li>
+    <li>Zero or more matching</li>
+    <li>Extra: Zero or more matching</li>    
+    <li>Extra: One or more matching</li>
+  </ol>
+
+  <p>
+    What's the regex syntax for the above?
+  </p>
+  <!-- ask for examples of each pattern before proceeding -->
+</section>
+
+<section class="slide">
+  <h2 style="margin-bottom: 0.25em;">Single Character Matching</h2>
+  <p style="margin-left: 200px; margin-bottom: 0.25em; margin-top: 0.25em; font-size: 2em;">/a/</p>
+  <h3>Input Strings</h3>
+  <ul>
+    <li>"a"</li>
+    <li>"b"</li>
+    <li>"ba"</li>
+    <li>"bcd"</li>    
+    <li>"bcad"</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2>RSpec Examples: Good Match</h2>
+<code style="margin-left: 2em; white-space: pre; font-weight: bold; font-size: 32px;">
+  describe "matching single characters" do
+    describe "/a/" do
+      it "matches 'a'" do
+        regex = MyRegex.new("/a/")
+        match = regex =~ "a"
+        match.should eq(0)
+      end
+    end
+  end
+</code>
+</section>
+
+<section class="slide">
+  <h2>RSpec Examples: No Match</h2>
+<code style="margin-left: 2em; white-space: pre; font-weight: bold; font-size: 32px;">
+  describe "matching single characters" do  
+    describe "/a/" do
+      it "doesn't match 'b'" do
+        regex = MyRegex.new("/a/")
+        match = regex =~ "b"
+        match.should be_nil
+      end
+    end
+  end
+</code>
+</section>
+
+<section class="slide">
+  <h2>What does our state machine look like when it gets:</h2>
+  <ul>
+    <li>a single "a"? ie: "a"</li>
+    <li>any other character such as "b"? ie: "b"</li>
+    <li>an "a" after it got a "b"? ie: "ba"</li>
+    <li>an "c" after it got a "b"? ie: "bc"</li> 
+    <li>how to tell when its done? ie: "bababa"</li> 
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2>Thinking About Implementation </h2>
+  <ul>
+    <li>Keep track of where we are in the string</li>
+    <li>if we don't match and there's more string to go, move our string index forward by 1, try again</li>
+    <li>if we get to the end of the string and haven't matched, return nil</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2 style="margin-bottom: 0.25em">An Implementation</h2>
+<code style="margin-left: 2em; white-space: pre; font-weight: bold; font-size: 24px;">
+class MyRegex
+  def initialize(pattern)
+    @pattern = pattern[1..-2] # everything inside of / and /
+  end
+
+  def =~(str)
+    sindex = 0
+
+    loop do
+      if str[sindex] == @pattern
+        return sindex
+      end
+      sindex += 1
+
+      return nil if sindex > str.length
+    end
+  end
+end
+</code>
+</section>
+
+<section class="slide">
+  <h2 style="margin-bottom: 0.25em;">Concatenation</h2>
+  <p style="margin-left: 200px; margin-bottom: 0.25em; margin-top: 0.25em; font-size: 2em;">
+    /cat/
+  </p>
+  <h3>Input Strings</h3>
+  <ul>
+    <li>"bat"</li>
+    <li>"cat"</li>
+    <li>"caz"</li>
+    <li>"bcats"</li>
+    <li>"cacat"</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->  
+</section>
+
+<section class="slide">
+  <h2>What does our state machine look like when it gets:</h2>
+  <ul>
+    <li>"bat"</li>
+    <li>"cat"</li>
+    <li>"caz"</li>
+    <li>"bcats"</li>
+    <li>"cacat"</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2>Thinking About Implementation </h2>
+  <h3>Before</h3>
+  <ul>
+    <li>keep track of where we are in the string</li>
+    <li>if we don't match, move our string index by 1, try again</li>
+    <li>if we get to end of string and haven't matched, return nil</li>
+  </ul>
+
+  <h3>Now</h3>
+  <ul>
+    <li>keep track of where are in the pattern</li>
+    <li>if part of pattern matches, move forward one state</li>
+    <li>if we finish matching the pattern, accept and return offset</li>
+    <li>if we are somewhere in the pattern and string fails to match, reset pattern index</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2>What would the implementation need?</h2>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2 style="margin-bottom: 0.25em">An Implementation</h2>
+<code style="margin-left: 2em; white-space: pre; font-weight: bold; font-size: 24px;">
+class MyRegex
+  def initialize(pattern)
+    @pattern = pattern[1..-2] # everything inside of / and /
+  end
+
+  def =~(str)
+    <highlight>matched_offset = 0</highlight>
+    <highlight>pindex = 0</highlight>
+    sindex = 0
+
+    loop do
+      <highlight>  
+      if str[sindex] == @pattern[pindex]
+        sindex += 1
+        pindex += 1
+      else
+        sindex += 1
+        matched_offset = sindex
+        pindex = 0
+      end
+
+      return matched_offset if pindex > @pattern.length</highlight>
+      return nil if sindex > str.length
+    end
+  end
+end
+</code>
+</section>
+
+<section class="slide">
+  <h2 style="margin-bottom: 0.25em;">Wildcard Matching</h2>
+  <p style="margin-left: 200px; margin-bottom: 0.25em; margin-top: 0.25em; font-size: 2em;">
+    /c.t/
+  </p>
+  <h3>Input Strings</h3>
+  <ul>
+    <li>"baz"</li>
+    <li>"cat"</li>
+    <li>"caz"</li>    
+    <li>"scuts"</li>
+    <li>"ccatz"</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->  
+</section>
+
+<section class="slide">
+  <h2>What does our state machine look like when it gets:</h2>
+  <ul>
+    <li>"baz"</li>
+    <li>"cat"</li>
+    <li>"caz"</li>    
+    <li>"scuts"</li>
+    <li>"ccatz"</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2>What would the implementation need?</h2>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2 style="margin-bottom: 0.25em;">Zero or One</h2>
+  <p style="margin-left: 200px; margin-bottom: 0.25em; margin-top: 0.25em; font-size: 2em;">
+    /ca?t/
+  </p>
+  <h3>Input Strings</h3>
+  <ul>
+    <li>"cat"</li>
+    <li>"ct"</li>
+    <li>"caat"</li>    
+    <li>"bat"</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->  
+</section>
+
+<section class="slide">
+  <h2>What does our state machine look like when it gets:</h2>
+  <ul>
+    <li>"cat"</li>
+    <li>"caat"</li>
+    <li>"ct"</li>
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2>Thinking About Implementation </h2>
+  <ul>
+    <li>Zero or one is kind of like wild card</li>
+    <li>except it moves string forward only when it matches</li>
+    <li>and moves pattern along no matter what</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h1>Next meeting</hh1>
+</section>
+
+<section class="slide">
+  <h2>What to have implemented</h2>
+  <ul>
+    <li>Implement single character, concatentation, wildcard, and zero or one matching</li>
+    <li>Extra: implement zero or more and one or more</li>
+  </ul>
+
+  <h2>What we'll focus on</h2>
+  <ul>
+    <li>A new way of thinking about these matchers</li>
+    <li>Zero or more, and one or more matchers</li>
+    <li>Extra: Lazy quantifiers</li>
+  </ul>
+
+</section>
+
+
+<!-- End slides. -->
+
+
+<!-- Begin extension snippets. Add or remove as needed. -->
+
+<!-- deck.navigation snippet -->
+<a href="#" class="deck-prev-link" title="Previous">&#8592;</a>
+<a href="#" class="deck-next-link" title="Next">&#8594;</a>
+
+<!-- deck.status snippet -->
+<p class="deck-status">
+  <span class="deck-status-current"></span>
+  /
+  <span class="deck-status-total"></span>
+</p>
+
+<!-- deck.goto snippet -->
+<form action="." method="get" class="goto-form">
+  <label for="goto-slide">Go to slide:</label>
+  <input type="text" name="slidenum" id="goto-slide" list="goto-datalist">
+  <datalist id="goto-datalist"></datalist>
+  <input type="submit" value="Go">
+</form>
+
+<!-- deck.hash snippet -->
+<a href="." title="Permalink to this slide" class="deck-permalink">#</a>
+
+<!-- End extension snippets. -->
+
+
+<!-- Required JS files. -->
+<script src="jquery-1.7.2.min.js"></script>
+<script src="core/deck.core.js"></script>
+
+<!-- Extension JS files. Add or remove as needed. -->
+<script src="core/deck.core.js"></script>
+<script src="extensions/hash/deck.hash.js"></script>
+<script src="extensions/menu/deck.menu.js"></script>
+<script src="extensions/goto/deck.goto.js"></script>
+<script src="extensions/status/deck.status.js"></script>
+<script src="extensions/navigation/deck.navigation.js"></script>
+<script src="extensions/scale/deck.scale.js"></script>
+
+<!-- Initialize the deck. You can put this in an external file if desired. -->
+<script>
+  $(function() {
+    $.deck('.slide');
+  });
+</script>
+</body>
+</html>
