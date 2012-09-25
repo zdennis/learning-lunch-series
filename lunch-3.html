@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=1024, user-scalable=no">
+
+  <title>Lunch #3 - Implementing a Regex Engine</title>
+  
+  <!-- Required stylesheet -->
+  <link rel="stylesheet" href="core/deck.core.css">
+  
+  <!-- Extension CSS files go here. Remove or add as needed. -->
+  <link rel="stylesheet" href="extensions/goto/deck.goto.css">
+  <link rel="stylesheet" href="extensions/menu/deck.menu.css">
+  <link rel="stylesheet" href="extensions/navigation/deck.navigation.css">
+  <link rel="stylesheet" href="extensions/status/deck.status.css">
+  <link rel="stylesheet" href="extensions/hash/deck.hash.css">
+  <link rel="stylesheet" href="extensions/scale/deck.scale.css">
+
+  <!-- Style theme. More available in /themes/style/ or create your own. -->
+  <link rel="stylesheet" href="themes/style/web-2.0.css">
+  
+  <!-- Transition theme. More available in /themes/transition/ or create your own. -->
+  <link rel="stylesheet" href="themes/transition/horizontal-slide.css">
+  
+  <!-- Required Modernizr file -->
+  <script src="modernizr.custom.js"></script>
+</head>
+<body class="deck-container">
+
+<!-- Begin slides. Just make elements with a class of slide. -->
+
+<section class="slide">
+  <h1>Implementation Lunch #2</h1>
+</section>
+
+<section class="slide">
+  <h2>Review / Recap</h2>
+  <ul>
+    <li>Single character matching</li>
+    <li>Concatenation</li>
+    <li>Wildcard matching</li>
+    <li>Zero or more matching
+      <ul>
+        <li>&#1013; transition</li>
+      </ul>
+    </li>
+    <li>Extra: Zero or more matching</li>    
+    <li>Extra: One or more matching</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>Today's features</h2>
+
+  <ol>
+    <li>Zero or more</li>
+    <li>One or more matchers</li>
+    <li>A new way of thinking about these matchers</li>
+    <li>Extra: Lazy quantifiers</li>
+  </ol>
+
+  <p>
+    What's the regex syntax for the above?
+  </p>
+  <!-- ask for examples of each pattern before proceeding -->
+</section>
+
+<section class="slide">
+  <h2 style="margin-bottom: 0.25em;">Zero or More</h2>
+  <p style="margin-left: 200px; margin-bottom: 0.25em; margin-top: 0.25em; font-size: 2em;">/a*/</p>
+  <h3>Input Strings</h3>
+  <ul>
+    <li>"" =~ /a*/</li>
+    <li>"a" =~ /a*/</li>
+    <li>"baac" =~ /a*/</li>
+    <li>"baac" =~ /a*c/</li>
+    <li>"baacc" =~ /.*c/</li>        
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+<section class="slide">
+  <h2 style="margin-bottom: 0.25em;">One or More</h2>
+  <p style="margin-left: 200px; margin-bottom: 0.25em; margin-top: 0.25em; font-size: 2em;">/a+/</p>
+  <h3>Input Strings</h3>
+  <ul>
+    <li>"" =~ /a+/</li>
+    <li>"a" =~ /a+/</li>
+    <li>"baac" =~ /a+/</li>
+    <li>"baac" =~ /a+c/</li>
+    <li>"baac" =~ /.+c/</li>        
+  </ul>
+  <!-- walk through examples on whiteboard -->
+</section>
+
+
+<section class="slide">
+  <h2>Thinking about implementation</h2>
+  <ul>
+    <li>What things might we need to support greedy modifiers?</li>
+    <!-- backtracking, stack to keep track of matches for backtracking, inner loops for greedy modifiers -->
+    <li>How could we add these into our implementation?</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h1>Considering new ways to think about this</h1>
+</section>
+
+<section class="slide">
+  <h2>From infix to postfix</h2>
+  <ul>
+    <li>
+      a.*c+ becomes a*.+c
+    </li>
+  </ul>
+</section> 
+
+<section class="slide">
+  <h2>From low-level to high-level</h2>
+  <ul>
+    <li>a * . + c</li>
+    <li>a (* .) (+ c)</li>
+    <li>a (* .) (+ c)</li>
+    <li>Character("a") ZeroOrMore Wildcard OneOrMore Character("c")</li>
+    <li>Character("a") → ZeroOrMore(Wildcard) → OneOrMore(Character("c"))</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>Options for converting</h2>
+  <ul>
+    <li>a.*c+</li>
+    <li>actually rewrite it to post-fix and scan that</li>
+    <li>not re-write, but if we see a modifier, use compose it with the last pattern, then replace the last pattern with our new one</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>How would this impact adding features to our engine?</h2>
+  <ul>
+    <li>say sub-expressions or alternation?</li>
+    <li>Pros/Cons?</li>  
+    <li>Why?</li>    
+  </ul>
+</section>
+
+<section class="slide">
+  <h1>Next meeting</hh1>
+</section>
+
+<section class="slide">
+  <h2>What to have implemented</h2>
+  <ul>
+    <li>Implement zero or more in the low-level primitive mode</li>
+    <li>Implement zero or more composing matching/acceptor objects</li>    
+    <li>Extra: LazyQuantifier</li>
+  </ul>
+
+  <h2>What we'll focus on</h2>
+  <ul>
+    <li>Review</li>
+    <li>Lazy Quantifiers</li>
+    <li>Alternation</li>
+    <li>Extra: Sub expressions</li>
+  </ul>
+
+</section>
+
+
+<!-- End slides. -->
+
+
+<!-- Begin extension snippets. Add or remove as needed. -->
+
+<!-- deck.navigation snippet -->
+<a href="#" class="deck-prev-link" title="Previous">&#8592;</a>
+<a href="#" class="deck-next-link" title="Next">&#8594;</a>
+
+<!-- deck.status snippet -->
+<p class="deck-status">
+  <span class="deck-status-current"></span>
+  /
+  <span class="deck-status-total"></span>
+</p>
+
+<!-- deck.goto snippet -->
+<form action="." method="get" class="goto-form">
+  <label for="goto-slide">Go to slide:</label>
+  <input type="text" name="slidenum" id="goto-slide" list="goto-datalist">
+  <datalist id="goto-datalist"></datalist>
+  <input type="submit" value="Go">
+</form>
+
+<!-- deck.hash snippet -->
+<a href="." title="Permalink to this slide" class="deck-permalink">#</a>
+
+<!-- End extension snippets. -->
+
+
+<!-- Required JS files. -->
+<script src="jquery-1.7.2.min.js"></script>
+<script src="core/deck.core.js"></script>
+
+<!-- Extension JS files. Add or remove as needed. -->
+<script src="core/deck.core.js"></script>
+<script src="extensions/hash/deck.hash.js"></script>
+<script src="extensions/menu/deck.menu.js"></script>
+<script src="extensions/goto/deck.goto.js"></script>
+<script src="extensions/status/deck.status.js"></script>
+<script src="extensions/navigation/deck.navigation.js"></script>
+<script src="extensions/scale/deck.scale.js"></script>
+
+<!-- Initialize the deck. You can put this in an external file if desired. -->
+<script>
+  $(function() {
+    $.deck('.slide');
+  });
+</script>
+</body>
+</html>
+
+
+
